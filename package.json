@@ -1,0 +1,27 @@
+{
+  "name": "node-fiber-test",
+  "version": "1.0.0",
+  "description": "A simple module to demonstrate a node-fiber bug.",
+  "bin": "./fibertest.js",
+  "gypfile": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "configure": "node-gyp configure",
+    "build": "node-gyp build",
+    "debug": "node-gyp --debug rebuild",
+    "clean": "node-gyp clean",
+    "rebuild": "node-gyp rebuild"
+  },
+  "keywords": [
+    "fiber",
+    "async"
+  ],
+  "author": "Glenn Schmottlach",
+  "license": "MIT",
+  "dependencies": {
+    "bindings": "^1.2.1",
+    "bluebird": "^3.5.0",
+    "fibers": "^2.0.0",
+    "nan": "^2.6.2"
+  }
+}
