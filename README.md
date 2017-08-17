@@ -1,10 +1,14 @@
 # Node Fiber Bug Demonstration
 
-The module illustrates an (apparent) bug with the Node.js implementation of [fibers](https://github.com/laverdet/node-fibers). Specifically, this issue appears when calling a Node.js C++ addon (native) method which in turn calls back into Javascript from the context of a fiber. In this situation, as illustrated in the sample program (*fibertest.js*), both the native Node.js **Promise** implementation and **process.nextTick()** become comprised and no longer work correctly. The only work-around available is to replace the native Promise implementation with the compatible [Bluebird](http://bluebirdjs.com/docs/getting-started.html) implementation. Also, calls to *process.nextTick()* need to be replaced with *setImmediate()*.
+The module illustrates an (apparent) bug with the Node.js implementation of [fibers](https://github.com/laverdet/node-fibers). Specifically, this issue surfaces when calling a Node.js C++ addon (native) method which in turn calls back into JavaScript from the context of a fiber. In this situation, as illustrated in the sample program (*fibertest.js*), both the native Node.js **Promise** implementation and **process.nextTick()** become compromised and no longer work correctly. The only work-around available is to replace the native Promise implementation with the API compatible [Bluebird](http://bluebirdjs.com/docs/getting-started.html) implementation. Also, calls to *process.nextTick()* need to be replaced with *setImmediate()*.
+
+The issue seems to related to making a call indirectly through the C++ addon. The C++ addon merely bridges a JavaScript call to C++ and then back into JavaScript. This call-chain (Javascript -> C++ -> Javascript) executes in a fiber/coroutine.
+
+Preliminary investigations *seem* to indicate the Node.js/V8 microtasks used to execute functions on the "next tick" and resolve the native Promise implementation fails to run in some circumstances. Specifically [*internal/process/next_tick.js:runMicrotasksCallback*](https://github.com/nodejs/node/blob/master/lib/internal/process/next_tick.js) stops being called and thus the native Promise's aren't resolved nor are process.nexTick() functions run.
 
 ## Environment
 
-The apparent bugs was tested using Node.js v6.9.2 running on a Ubuntu 16.04 platform.
+The apparent bug was tested using Node.js v6.9.2 running on a x86 64-bit Ubuntu 16.04 platform.
 
 ## Installation
 
@@ -18,7 +22,7 @@ npm install
 
 The test program can be run with two options:
 
-* **workaround** - This runs the test program with the following two work-arounds that allows the program to run correctly:
+* **workaround** - This runs the test program with the following two work-arounds that allow the program to run correctly:
     1) Using *BlueBird's* Promise implementation.
     2) Substituting calls to *process.nextTick()* with *setImmediate()*.
 
