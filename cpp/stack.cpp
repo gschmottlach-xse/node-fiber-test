@@ -85,9 +85,10 @@ NAN_METHOD(Stack::ReadData)
 
     const int argc = 2;
     v8::Local<v8::Value> argv[argc] = {info[0], info[1]};
-    Nan::Callback callback(readDataFunc);
-    v8::Local<v8::Value> result = callback.Call(readDataFunc, argc, argv);
-    return info.GetReturnValue().Set(result);
+    Nan::MaybeLocal<v8::Value> result = Nan::Call(readDataFunc, v8::Local<v8::Object>::Cast(Nan::Undefined()), argc, argv);
+    if (!result.IsEmpty()) {
+        info.GetReturnValue().Set(result.ToLocalChecked());
+    }
 }
 
 void
