@@ -6,6 +6,10 @@ The issue seems to related to making a call indirectly through the C++ addon. Th
 
 Preliminary investigations *seem* to indicate the Node.js/V8 microtasks used to execute functions on the "next tick" and resolve the native Promise implementation fails to run in some circumstances. Specifically [*internal/process/next_tick.js:runMicrotasksCallback*](https://github.com/nodejs/node/blob/master/lib/internal/process/next_tick.js) stops being called and thus the native Promise's aren't resolved nor are process.nexTick() functions run.
 
+## Update!
+
+The issue demonstrated by this program has been resolved. Thanks to the efforts and insights provided by Node.js Fiber's Marcel Laverdet the problem illustrated here was in fact my fault. In my C++ addon code I was using Nan::Callback() to make the call back into JavaScript rather than the correct Nan::Call(). See [Issue #350](https://github.com/laverdet/node-fibers/issues/350#issuecomment-323204825) for more details.
+
 ## Environment
 
 The apparent bug was tested using Node.js v6.9.2 running on a x86 64-bit Ubuntu 16.04 platform.
